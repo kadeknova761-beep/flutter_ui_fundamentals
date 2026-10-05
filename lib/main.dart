@@ -14,32 +14,7 @@ Future<Map<String, dynamic>> loadStudentData() async {
   return jsonDecode(jsonString) as Map<String, dynamic>;
 }
 
-Future<void> main() async {
-  // Wajib dipanggil sebelum memakai rootBundle di luar widget.
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Uji pembacaan JSON lewat debugPrint (hasil render ke UI ada di Tahap 13).
-  try {
-    final data = await loadStudentData();
-    final student = data['student'] as Map<String, dynamic>;
-    final courses = data['courses'] as List<dynamic>;
-
-    debugPrint('JSON berhasil dimuat');
-    debugPrint('NIM  : ${student['nim']}');
-    debugPrint('Nama : ${student['name']}');
-    debugPrint('Kelas: ${student['kelas']}');
-    debugPrint('Jumlah courses: ${courses.length}');
-    for (final c in courses) {
-      final course = c as Map<String, dynamic>;
-      debugPrint(
-        '- ${course['code']} | ${course['title']} | '
-        '${course['credits']} SKS | ${course['status']}',
-      );
-    }
-  } catch (e) {
-    debugPrint('Gagal memuat JSON: $e');
-  }
-
+void main() {
   runApp(const MyApp());
 }
 
@@ -50,82 +25,128 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const TopicListPage(),
+      home: const DashboardPage(),
     );
   }
 }
 
-class TopicListPage extends StatelessWidget {
-  const TopicListPage({super.key});
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
 
-  final List<Map<String, dynamic>> topics = const [
-    {'title': 'Git & GitHub', 'subtitle': 'Version control', 'done': true},
-    {'title': 'Dart Fundamentals', 'subtitle': 'Language basics', 'done': true},
-    {
-      'title': 'Flutter UI Fundamentals',
-      'subtitle': 'Widgets & layout',
-      'done': false,
-    },
-    {
-      'title': '$studentId - $studentName',
-      'subtitle': 'Pemilik aplikasi',
-      'done': false,
-    },
-  ];
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  // late: diisi di initState(), sebelum dipakai oleh build().
+  late Future<Map<String, dynamic>> studentFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Future dibuat satu kali di sini, bukan di dalam build().
+    studentFuture = loadStudentData();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final int completed = topics.where((item) => item['done'] == true).length;
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Flutter UI Fundamentals')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Text(
-              '$studentId - $studentName',
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
-          Text(
-            '$completed dari ${topics.length} topik selesai',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView.builder(
-              itemCount: topics.length,
-              itemBuilder: (context, index) {
-                final item = topics[index];
-                final bool isDone = item['done'] == true;
+      appBar: AppBar(title: const Text('Learning Dashboard')),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: studentFuture,
+        builder: (context, snapshot) {
+          // 1. Loading state
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  child: ListTile(
-                    leading: Icon(
-                      isDone ? Icons.check_circle : Icons.schedule,
-                      color: isDone ? Colors.green : Colors.orange,
-                    ),
-                    title: Text(item['title'] as String),
-                    subtitle: Text(item['subtitle'] as String),
-                    trailing: Text(
-                      isDone ? 'Selesai' : 'Belum',
-                      style: TextStyle(
-                        color: isDone ? Colors.green : Colors.orange,
-                        fontWeight: FontWeight.bold,
+          // 2. Error state
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Gagal memuat data: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+
+          // 3. Data state
+          final data = snapshot.data!;
+          final student = data['student'] as Map<String, dynamic>;
+          final courses = data['courses'] as List<dynamic>;
+
+          return Column(
+            children: [
+              Card(
+                margin: const EdgeInsets.all(12),
+                child: ListTile(
+                  leading: const Icon(Icons.person, size: 40),
+                  title: Text(student['name'] as String),
+                  subtitle: Text('${student['nim']} - ${student['kelas']}'),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: courses.length,
+                  itemBuilder: (context, index) {
+                    final course = courses[index] as Map<String, dynamic>;
+                    final String status = course['status'] as String;
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+                      child: ListTile(
+                        leading: Icon(
+                          _statusIcon(status),
+                          color: _statusColor(status),
+                        ),
+                        title: Text(course['title'] as String),
+                        subtitle: Text(
+                          '${course['code']} - ${course['credits']} SKS',
+                        ),
+                        trailing: Text(
+                          status,
+                          style: TextStyle(
+                            color: _statusColor(status),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  IconData _statusIcon(String status) {
+    switch (status) {
+      case 'done':
+        return Icons.check_circle;
+      case 'active':
+        return Icons.play_circle;
+      default:
+        return Icons.schedule;
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'done':
+        return Colors.green;
+      case 'active':
+        return Colors.blue;
+      default:
+        return Colors.orange;
+    }
   }
 }

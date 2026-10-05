@@ -2,7 +2,8 @@
   "student": {
     "nim": "2415051117",
     "name": "Kadek Nova Krisna Putra",
-    "kelas": "PTI 5C"
+    "kelas": "PTI 5C",
+    "semester": 5
   },
   "courses": [
     {"code": "MOB01", "title": "Git & GitHub", "credits": 2, "status": "done"},

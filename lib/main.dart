@@ -6,11 +6,20 @@ import 'package:flutter/services.dart' show rootBundle;
 const String studentName = 'Kadek Nova Krisna Putra';
 const String studentId = '2415051117';
 
+// ===== SAKLAR DEBUGGING TAHAP 15 =====
+// Kasus A: true = tampilkan versi overflow, false = versi perbaikan.
+const bool showOverflowBug = false;
+// Kasus C: true = path JSON sengaja salah untuk menguji error state.
+const bool simulateJsonError = false;
+// =======================================
+
 /// Membaca assets/data/student_data.json lalu mengubahnya menjadi Map.
 Future<Map<String, dynamic>> loadStudentData() async {
-  final jsonString = await rootBundle.loadString(
-    'assets/data/student_data.json',
-  );
+  final String path = simulateJsonError
+      ? 'assets/data/student_data_salah.json'
+      : 'assets/data/student_data.json';
+
+  final jsonString = await rootBundle.loadString(path);
   return jsonDecode(jsonString) as Map<String, dynamic>;
 }
 
@@ -70,9 +79,26 @@ class _DashboardPageState extends State<DashboardPage> {
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'Gagal memuat data: ${snapshot.error}',
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '$studentId - $studentName',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Gagal memuat data: ${snapshot.error}',
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -103,6 +129,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     semester: student['semester'].toString(),
                   ),
                 ),
+
+                // Kasus A: demo overflow dan perbaikannya
+                const SliverToBoxAdapter(child: OverflowCaseCard()),
 
                 // Baris ringkasan
                 SliverToBoxAdapter(
@@ -162,6 +191,44 @@ class _DashboardPageState extends State<DashboardPage> {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+/// Kasus A: Row dengan teks panjang.
+/// showOverflowBug = true  -> Text langsung di Row (RenderFlex overflow).
+/// showOverflowBug = false -> Text dibungkus Expanded (teks turun ke baris baru).
+class OverflowCaseCard extends StatelessWidget {
+  const OverflowCaseCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const String longText =
+        '$studentId - $studentName - Ini adalah teks yang sangat panjang '
+        'untuk menguji layout dan harus tetap terbaca tanpa overflow';
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: showOverflowBug
+            // VERSI RUSAK: Text tidak dibatasi lebarnya oleh Row.
+            ? Row(
+                children: [
+                  const Icon(Icons.info),
+                  const SizedBox(width: 8),
+                  Text(longText),
+                ],
+              )
+            // VERSI PERBAIKAN: Expanded membatasi Text pada sisa lebar Row.
+            : Row(
+                children: [
+                  const Icon(Icons.info),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(longText)),
+                ],
+              ),
       ),
     );
   }

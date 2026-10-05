@@ -1,9 +1,45 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 const String studentName = 'Kadek Nova Krisna Putra';
 const String studentId = '2415051117';
 
-void main() {
+/// Membaca assets/data/student_data.json lalu mengubahnya menjadi Map.
+Future<Map<String, dynamic>> loadStudentData() async {
+  final jsonString = await rootBundle.loadString(
+    'assets/data/student_data.json',
+  );
+  return jsonDecode(jsonString) as Map<String, dynamic>;
+}
+
+Future<void> main() async {
+  // Wajib dipanggil sebelum memakai rootBundle di luar widget.
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Uji pembacaan JSON lewat debugPrint (hasil render ke UI ada di Tahap 13).
+  try {
+    final data = await loadStudentData();
+    final student = data['student'] as Map<String, dynamic>;
+    final courses = data['courses'] as List<dynamic>;
+
+    debugPrint('JSON berhasil dimuat');
+    debugPrint('NIM  : ${student['nim']}');
+    debugPrint('Nama : ${student['name']}');
+    debugPrint('Kelas: ${student['kelas']}');
+    debugPrint('Jumlah courses: ${courses.length}');
+    for (final c in courses) {
+      final course = c as Map<String, dynamic>;
+      debugPrint(
+        '- ${course['code']} | ${course['title']} | '
+        '${course['credits']} SKS | ${course['status']}',
+      );
+    }
+  } catch (e) {
+    debugPrint('Gagal memuat JSON: $e');
+  }
+
   runApp(const MyApp());
 }
 

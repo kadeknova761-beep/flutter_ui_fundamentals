@@ -29,6 +29,60 @@ Widget buildStatCard(String value, String label, IconData icon) {
   );
 }
 
+// StatefulWidget: kartu sapaan dengan input
+class GreetingCard extends StatefulWidget {
+  const GreetingCard({super.key});
+
+  @override
+  State<GreetingCard> createState() => _GreetingCardState();
+}
+
+class _GreetingCardState extends State<GreetingCard> {
+  final TextEditingController controller = TextEditingController();
+  String message = 'Belum ada pesan';
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text('$studentId - $studentName'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                labelText: 'Tulis pesan',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  message = controller.text.trim().isEmpty
+                      ? 'Input masih kosong'
+                      : controller.text.trim();
+                });
+              },
+              child: const Text('Tampilkan'),
+            ),
+            const SizedBox(height: 12),
+            Text(message),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -104,6 +158,10 @@ class MyApp extends StatelessWidget {
                     buildStatCard('1', 'State', Icons.sync),
                   ],
                 ),
+                const SizedBox(height: 16),
+
+                // Interaksi: GreetingCard (StatefulWidget)
+                const GreetingCard(),
               ],
             ),
           ),

@@ -51,6 +51,51 @@ class MyApp extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          '12',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text('Widget'),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          '4',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text('Layout'),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          '1',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text('State'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

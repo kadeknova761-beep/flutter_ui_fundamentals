@@ -7,6 +7,28 @@ void main() {
   runApp(const MyApp());
 }
 
+// Function reusable: satu kartu statistik
+Widget buildStatCard(String value, String label, IconData icon) {
+  return Expanded(
+    child: Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Icon(icon),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            Text(label),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -58,7 +80,7 @@ class MyApp extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Container + BoxDecoration: elemen ringkasan
+                // Container + BoxDecoration: deskripsi
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   padding: const EdgeInsets.all(16),
@@ -74,52 +96,13 @@ class MyApp extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Card: statistik
-                const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              '8',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text('Widget'),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              '4',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text('Layout'),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              '1',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text('State'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                // Statistik: memakai buildStatCard 3 kali
+                Row(
+                  children: [
+                    buildStatCard('8', 'Widget', Icons.widgets),
+                    buildStatCard('4', 'Layout', Icons.view_quilt),
+                    buildStatCard('1', 'State', Icons.sync),
+                  ],
                 ),
               ],
             ),

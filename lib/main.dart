@@ -15,8 +15,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: Text('$studentId - $studentName')),
-        body: const Center(child: Text('Flutter UI Novametal')),
+        appBar: AppBar(title: const Text('Flutter UI Fundamentals')),
+        body: Center(
+          child: Text(
+            '$studentId\n$studentName',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20),
+          ),
+        ),
       ),
     );
   }

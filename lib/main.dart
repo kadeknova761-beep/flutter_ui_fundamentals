@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const String studentName = 'Nova Krisna';
+const String studentName = 'Kadek Nova Krisna Putra';
 const String studentId = '2415051117';
 
 void main() {
@@ -16,11 +16,18 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: const Text('Flutter UI Fundamentals')),
-        body: Center(
-          child: Text(
-            '$studentId\n$studentName',
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20),
+        body: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('$studentId - $studentName'),
+              const SizedBox(height: 12),
+              const Text('Belajar Widget Tree'),
+              const SizedBox(height: 12),
+              const Icon(Icons.widgets, size: 48),
+            ],
           ),
         ),
       ),
